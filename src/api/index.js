@@ -13,18 +13,23 @@ router.get("/", (req, res) => {
 });
 
 router.get("/getAllClubs", async (req, res, next) => {
-  const { data, error } = await supabase.from("organizations").select("*");
+  const { limit } = req.query; // get request params
+  console.log();
+  const { data, error } = await supabase
+    .from("organizations")
+    .select("*")
+    .limit(limit || 2000);
   if (error) return res.json(error);
   res.json(data);
 });
 
 router.get("/searchClubs", async (req, res, next) => {
-  let { query } = req.query; // get request params
+  const { query } = req.query; // get request params
+  console.log(req.params, req.query);
   const { data, error } = await supabase // query db
     .from("organizations")
     .select("*")
     .or(`name.ilike.*${query}*,shortName.ilike.*${query}*,summary.ilike.*${query}*`)
-    .order("fitness", { ascending: false })
     .limit(100);
   if (error) return res.json(error);
   res.json({ count: data.length, results: data });
