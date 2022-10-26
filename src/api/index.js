@@ -13,18 +13,19 @@ router.get('/', (req, res) => {
   });
 });
 
-router.get("/getAllClubs", async (req, res, next) => {
+router.get("/clubs/getAllClubs", async (req, res, next) => {
   const { limit } = req.query; // get request params
   console.log();
   const { data, error } = await supabase
       .from("organizations")
       .select("*")
       .limit(limit || 2000);
+
   if (error) return res.json(error);
   res.json(data);
 });
 
-router.get('/searchClubs', async (req, res, next) => {
+router.get('/clubs/searchClubs', async (req, res, next) => {
   const { query } = req.query; // get request params
   console.log(req.params, req.query);
   const { data, error } = await supabase // query db
