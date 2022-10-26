@@ -19,6 +19,7 @@ router.get("/clubs/getAllClubs", async (req, res, next) => {
   const { data, error } = await supabase
       .from("organizations")
       .select("*")
+      .order("fitness", {ascending: false})
       .limit(limit || 2000);
 
   if (error) return res.json(error);
