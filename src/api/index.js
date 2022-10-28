@@ -51,4 +51,6 @@ router.get('/clubs/:club_id', async (req, res) => {
   res.json(data);
 })
 
+router.get('/')
+
 module.exports = router;
