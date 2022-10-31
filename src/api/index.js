@@ -1,5 +1,6 @@
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
+const axios = require('axios');
 
 const supabase = createClient(
   'https://mdwlzfwjihhrecmsgotj.supabase.co',
@@ -49,6 +50,15 @@ router.get('/clubs/:club_id', async (req, res) => {
   if (error) return res.json(error);
   // console.log(data);
   res.json(data);
+})
+
+const ACCESS_TOKEN = "EAAMpSHmkcGYBADNBwm9RCyPDf0DevFVB82JPnfWY6u2zqVqczv1M7dXQyn1EKC6ZCd89JfZCjMZA3mybvRNAvrHvLZCyNIrLjIzzx9vuWcsm8GvpoCiHYzZBFtl4ECsDYUrqP2EZAj7sHgkoQGRZAJiIfOPFjarMbhvUchtJDaEys1gf5W7CNAA7kn6cUJZBZCgf79Acs57mbDNhfG4ZB6gvT9TopbthiXynQZBLxx91nIAMfUuvsuqyIQZCsanPdjr6QSsZD";
+const basicFacebook = "https://www.facebook.com/instagram";
+
+router.get('/instagram/defaultEmbed', (req, res) =>{      
+  axios.get(`https://graph.facebook.com/v15.0/oembed_page?url=${basicFacebook}&access_token=${ACCESS_TOKEN}`).then( response => {
+    res.json(response.data.html);
+  })
 })
 
 router.get('/')
