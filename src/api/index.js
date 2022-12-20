@@ -11,7 +11,7 @@ const router = express.Router();
 const getPagination = (page, size) => {
   const limit = size ? +size : 3;
   const from = page ? page * limit : 0;
-  const to = page ? from + size : size;
+  const to = page ? from + size - 1 : size - 1;
 
   return { from, to };
 };
@@ -24,15 +24,24 @@ router.get('/', (req, res) => {
 
 router.get('/clubs/getAllClubs', async (req, res, next) => {
   const { page } = req.query; // get request params
-  const { from, to } = getPagination(page, 10);
-  const { data, error } = await supabase
-    .from('organizations')
-    .select('*')
-    .order('fitness', { ascending: false })
-    .range(from, to);
+  if (page) {
+    const { from, to } = getPagination(page, 10);
+    const { data, error } = await supabase
+      .from('organizations')
+      .select('*')
+      .range(from, to);
 
-  if (error) return res.json(error);
-  res.json(data);
+    if (error) return res.json(error);
+    res.json(data);
+  } else {
+    const { data, error } = await supabase
+      .from('organizations')
+      .select('*')
+      .limit(2000);
+
+    if (error) return res.json(error);
+    res.json(data);
+  }
 });
 
 router.get('/clubs/searchClubs', async (req, res, next) => {
