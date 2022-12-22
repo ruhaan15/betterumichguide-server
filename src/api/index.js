@@ -22,23 +22,19 @@ router.get('/', (req, res) => {
   });
 });
 
-router.get('/clubs/getAllClubs', async (req, res, next) => {
-  const { page } = req.query; // get request params
-  if (page) {
-    const { from, to } = getPagination(page, 10);
+router.get('/clubs/getAllClubs', async (req, res) => {
+  const { page, size } = req.query;
+  if (page && size) {
+    const { from, to } = getPagination(Number(page), Number(size));
     const { data, error } = await supabase
-      .from('organizations')
+      .from('sorted_organizations')
       .select('*')
       .range(from, to);
 
     if (error) return res.json(error);
     res.json(data);
   } else {
-    const { data, error } = await supabase
-      .from('organizations')
-      .select('*')
-      .limit(2000);
-
+    const { data, error } = await supabase.from('organizations').select('*');
     if (error) return res.json(error);
     res.json(data);
   }
