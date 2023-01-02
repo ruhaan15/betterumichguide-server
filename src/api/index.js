@@ -16,6 +16,9 @@ const getPagination = (page, size) => {
   return { from, to };
 };
 
+const columns =
+  'id, name, profilePicture, socialMedia_externalWebsite, categoryNames, email, socialMedia_instagramUrl, description';
+
 router.get('/', (req, res) => {
   res.json({
     message: 'API - 👋🌎🌍🌏',
@@ -28,7 +31,7 @@ router.get('/clubs/getAllClubs', async (req, res) => {
     const { from, to } = getPagination(Number(page), Number(size));
     const { data, error } = await supabase
       .from('sorted_organizations')
-      .select('*')
+      .select(columns)
       .range(from, to);
 
     if (error) return res.json(error);
@@ -45,10 +48,11 @@ router.get('/clubs/searchClubs', async (req, res, next) => {
   console.log(req.params, req.query);
   const { data, error } = await supabase // query db
     .from('organizations')
-    .select('*')
+    .select(columns)
     .or(
       `name.ilike.*${query}*,shortName.ilike.*${query}*,summary.ilike.*${query}*`,
     )
+    .order('fitness', { ascending: false })
     .limit(100);
   if (error) return res.json(error);
   res.json({ count: data.length, results: data });
@@ -59,7 +63,7 @@ router.get('/clubs/:club_id', async (req, res) => {
   // TODO(ruhaan): should I be querying based on name or id
   const { data, error } = await supabase
     .from('organizations')
-    .select('*')
+    .select(columns)
     .eq('id', `${club_id}`)
     .limit(1);
   if (error) return res.json(error);
