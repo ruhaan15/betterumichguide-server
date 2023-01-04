@@ -26,16 +26,28 @@ router.get('/', (req, res) => {
 });
 
 router.get('/clubs/getAllClubs', async (req, res) => {
-  const { page, size } = req.query;
+  const { page, size, filters } = req.query;
+  // console.log(filters);
   if (page && size) {
     const { from, to } = getPagination(Number(page), Number(size));
-    const { data, error } = await supabase
-      .from('sorted_organizations')
-      .select(columns)
-      .range(from, to);
+    if(filters) {
+      const { data, error } = await supabase
+          .from('sorted_organizations')
+          .select('columns')
+          .contains("categoryNames", filters)
+          .range(from, to);
 
-    if (error) return res.json(error);
-    res.json(data);
+      if (error) return res.json(error);
+      res.json(data);
+    } else {
+      const { data, error } = await supabase
+          .from('sorted_organizations')
+          .select('columns')
+          .range(from, to);
+
+      if (error) return res.json(error);
+      res.json(data);
+    }
   } else {
     const { data, error } = await supabase.from('organizations').select('*');
     if (error) return res.json(error);
@@ -50,7 +62,7 @@ router.get('/clubs/searchClubs', async (req, res, next) => {
     .from('organizations')
     .select(columns)
     .or(
-      `name.ilike.*${query}*,shortName.ilike.*${query}*,summary.ilike.*${query}*`,
+      `name.ilike.*${query}*, shortName.ilike.*${query}*, summary.ilike.*${query}*`,
     )
     .order('fitness', { ascending: false })
     .limit(100);
