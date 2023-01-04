@@ -3,8 +3,8 @@ const { createClient } = require('@supabase/supabase-js');
 const axios = require('axios');
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY,
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_KEY,
 );
 const router = express.Router();
 
@@ -17,7 +17,7 @@ const getPagination = (page, size) => {
 };
 
 const columns =
-  'id, name, profilePicture, socialMedia_externalWebsite, categoryNames, email, socialMedia_instagramUrl, description';
+    'id, name, profilePicture, socialMedia_externalWebsite, categoryNames, email, socialMedia_instagramUrl, description';
 
 router.get('/', (req, res) => {
   res.json({
@@ -26,28 +26,16 @@ router.get('/', (req, res) => {
 });
 
 router.get('/clubs/getAllClubs', async (req, res) => {
-  const { page, size, filters } = req.query;
-  // console.log(filters);
+  const { page, size } = req.query;
   if (page && size) {
     const { from, to } = getPagination(Number(page), Number(size));
-    if(filters) {
-      const { data, error } = await supabase
-          .from('sorted_organizations')
-          .select('columns')
-          .contains("categoryNames", filters)
-          .range(from, to);
+    const { data, error } = await supabase
+        .from('sorted_organizations')
+        .select(columns)
+        .range(from, to);
 
-      if (error) return res.json(error);
-      res.json(data);
-    } else {
-      const { data, error } = await supabase
-          .from('sorted_organizations')
-          .select('columns')
-          .range(from, to);
-
-      if (error) return res.json(error);
-      res.json(data);
-    }
+    if (error) return res.json(error);
+    res.json(data);
   } else {
     const { data, error } = await supabase.from('organizations').select('*');
     if (error) return res.json(error);
@@ -59,13 +47,13 @@ router.get('/clubs/searchClubs', async (req, res, next) => {
   const { query } = req.query; // get request params
   console.log(req.params, req.query);
   const { data, error } = await supabase // query db
-    .from('organizations')
-    .select(columns)
-    .or(
-      `name.ilike.*${query}*, shortName.ilike.*${query}*, summary.ilike.*${query}*`,
-    )
-    .order('fitness', { ascending: false })
-    .limit(100);
+      .from('organizations')
+      .select(columns)
+      .or(
+          `name.ilike.*${query}*,shortName.ilike.*${query}*,summary.ilike.*${query}*`,
+      )
+      .order('fitness', { ascending: false })
+      .limit(100);
   if (error) return res.json(error);
   res.json({ count: data.length, results: data });
 });
@@ -74,27 +62,27 @@ router.get('/clubs/:club_id', async (req, res) => {
   const { club_id } = req.params;
   // TODO(ruhaan): should I be querying based on name or id
   const { data, error } = await supabase
-    .from('organizations')
-    .select(columns)
-    .eq('id', `${club_id}`)
-    .limit(1);
+      .from('organizations')
+      .select(columns)
+      .eq('id', `${club_id}`)
+      .limit(1);
   if (error) return res.json(error);
   // console.log(data);
   res.json(data);
 });
 
 const ACCESS_TOKEN =
-  'EAAMpSHmkcGYBADNBwm9RCyPDf0DevFVB82JPnfWY6u2zqVqczv1M7dXQyn1EKC6ZCd89JfZCjMZA3mybvRNAvrHvLZCyNIrLjIzzx9vuWcsm8GvpoCiHYzZBFtl4ECsDYUrqP2EZAj7sHgkoQGRZAJiIfOPFjarMbhvUchtJDaEys1gf5W7CNAA7kn6cUJZBZCgf79Acs57mbDNhfG4ZB6gvT9TopbthiXynQZBLxx91nIAMfUuvsuqyIQZCsanPdjr6QSsZD';
+    'EAAMpSHmkcGYBADNBwm9RCyPDf0DevFVB82JPnfWY6u2zqVqczv1M7dXQyn1EKC6ZCd89JfZCjMZA3mybvRNAvrHvLZCyNIrLjIzzx9vuWcsm8GvpoCiHYzZBFtl4ECsDYUrqP2EZAj7sHgkoQGRZAJiIfOPFjarMbhvUchtJDaEys1gf5W7CNAA7kn6cUJZBZCgf79Acs57mbDNhfG4ZB6gvT9TopbthiXynQZBLxx91nIAMfUuvsuqyIQZCsanPdjr6QSsZD';
 const basicFacebook = 'https://www.facebook.com/instagram';
 
 router.get('/instagram/defaultEmbed', (req, res) => {
   axios
-    .get(
-      `https://graph.facebook.com/v15.0/oembed_page?url=${basicFacebook}&access_token=${ACCESS_TOKEN}`,
-    )
-    .then((response) => {
-      res.json(response.data.html);
-    });
+      .get(
+          `https://graph.facebook.com/v15.0/oembed_page?url=${basicFacebook}&access_token=${ACCESS_TOKEN}`,
+      )
+      .then((response) => {
+        res.json(response.data.html);
+      });
 });
 
 router.get('/');
